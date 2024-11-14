@@ -1,0 +1,67 @@
+import pandas as pd
+from datetime import datetime
+
+def format_currency(amount):
+    """Format number as currency string"""
+    return f"${amount:,.2f}"
+
+def calculate_growth(old_value, new_value):
+    """Calculate percentage growth between two values"""
+    if old_value == 0:
+        return 0
+    return ((new_value - old_value) / old_value) * 100
+
+def calculate_percentile(df, column, value):
+    """Calculate percentile of a value within a column"""
+    return (df[column] <= value).mean() * 100
+
+def get_time_based_stats(profiles, timeframe='YTD'):
+    """Calculate compensation statistics for given timeframe"""
+    df = pd.DataFrame(profiles)
+    df['date'] = pd.to_datetime(df['date'])
+    
+    if timeframe == 'YTD':
+        mask = df['date'].dt.year == datetime.now().year
+    elif timeframe == '1Y':
+        mask = df['date'] >= pd.Timestamp.now() - pd.DateOffset(years=1)
+    else:
+        mask = slice(None)
+    
+    filtered_df = df[mask]
+    
+    return {
+        'avg_base': filtered_df['base'].mean(),
+        'avg_total': (filtered_df['base'] + 
+                     filtered_df['bonus'] + 
+                     filtered_df['equity']).mean(),
+        'min_total': (filtered_df['base'] + 
+                     filtered_df['bonus'] + 
+                     filtered_df['equity']).min(),
+        'max_total': (filtered_df['base'] + 
+                     filtered_df['bonus'] + 
+                     filtered_df['equity']).max(),
+    }
+
+def validate_profile_data(profile):
+    """Validate profile data input"""
+    required_fields = ['company', 'role', 'base']
+    if not all(field in profile for field in required_fields):
+        return False, "Missing required fields"
+    
+    if profile['base'] <= 0:
+        return False, "Base salary must be greater than 0"
+        
+    if profile.get('bonus', 0) < 0 or profile.get('equity', 0) < 0:
+        return False, "Bonus and equity cannot be negative"
+    
+    return True, "Valid profile data"
+
+def compute_market_position(user_comp, market_data):
+    """Calculate market position percentiles"""
+    total_comp = user_comp['base'] + user_comp['bonus'] + user_comp['equity']
+    
+    return {
+        'percentile': calculate_percentile(market_data, 'Total_Compensation', total_comp),
+        'diff_from_avg': total_comp - market_data['Total_Compensation'].mean(),
+        'diff_from_median': total_comp - market_data['Total_Compensation'].median()
+    }

@@ -17,3 +17,19 @@ A simple Streamlit app template for you to modify!
    ```
    $ streamlit run streamlit_app.py
    ```
+
+
+knowyourworth/
+├── app.py
+├── config/
+│   └── styles.py
+├── data/
+│   └── data_generator.py
+├── components/
+│   ├── banner.py
+│   ├── you_tab.py
+│   ├── companies_tab.py
+│   └── market_tab.py
+├── utils/
+│   └── helpers.py
+└── requirements.txt
