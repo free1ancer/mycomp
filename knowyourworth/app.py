@@ -1,9 +1,18 @@
+# app.py
 import streamlit as st
-from config.styles import CUSTOM_CSS
-from components.banner import render_banner
+import sys
+from pathlib import Path
+
+
+
+# Add the project root directory to Python path
+sys.path.append(str(Path(__file__).parent))
+
 from components.you_tab import render_you_tab
 from components.companies_tab import render_companies_tab
 from components.market_tab import render_market_tab
+from config.styles import CUSTOM_CSS
+from components.banner import render_banner
 
 # Page configuration
 st.set_page_config(
